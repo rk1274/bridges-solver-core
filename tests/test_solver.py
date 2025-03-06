@@ -19,21 +19,17 @@ class TestBridgesSolver(unittest.TestCase):
 
 
         grid = Grid(7,7)
-        grid.set_number(NumberTile(4, 0, 0))
-        grid.set_number(NumberTile(6, 2, 0))
-        grid.set_number(NumberTile(5, 4, 0))
-        grid.set_number(NumberTile(1, 6, 0))
-        grid.set_number(NumberTile(1, 5, 1))
-        grid.set_number(NumberTile(2, 4, 2))
-        grid.set_number(NumberTile(3, 0, 3))
-        grid.set_number(NumberTile(5, 2, 3))
-        grid.set_number(NumberTile(3, 5, 3))
+        grid.set_number(NumberTile(3, 0, 0))
+        grid.set_number(NumberTile(4, 2, 0))
+        grid.set_number(NumberTile(4, 6, 0))
+        grid.set_number(NumberTile(3, 0, 2))
+        grid.set_number(NumberTile(3, 3, 2))
+        grid.set_number(NumberTile(4, 6, 2))
         grid.set_number(NumberTile(1, 0, 5))
-        grid.set_number(NumberTile(2, 3, 5))
-        grid.set_number(NumberTile(3, 5, 5))
-        grid.set_number(NumberTile(3, 2, 6))
-        grid.set_number(NumberTile(1, 6, 6))
-
+        grid.set_number(NumberTile(3, 3, 5))
+        grid.set_number(NumberTile(2, 5, 5))
+        grid.set_number(NumberTile(2, 4, 6))
+        grid.set_number(NumberTile(3, 6, 6))
         
         print(grid)
 

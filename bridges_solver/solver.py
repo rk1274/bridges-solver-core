@@ -35,9 +35,11 @@ def makeConnections(numbers, grid):
     if len(numbers) == 0:
         return
     
+    for num in numbers:
+        print(num._number, num._numConnectionsLeft, num._numPosConnections)
 
     number = numbers[0]
-    if number._number < number._numPosConnections:
+    if number._numConnectionsLeft != number._numPosConnections:
         return
 
     posCons = number.get_possible_connections()
@@ -52,7 +54,9 @@ def makeConnections(numbers, grid):
 
     numbers.remove(number)
 
-    numbers.sort(key=sort)   
+    numbers.sort(key=sort)  
+
+    print(grid,"\n") 
     
     return makeConnections(numbers, grid)
     

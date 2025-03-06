@@ -62,9 +62,13 @@ class NumberTile:
 
         self._numConnectionsLeft -= 1
         self._numConnections += 1
+
         if self._numConnectionsLeft == 0 or self._numConnections == self._number:
             self._posConnections.clear()
             self._complete = True
+
+        if self._numConnectionsLeft == 1 and len(self._posConnections) == 1:
+            self._numPosConnections -= 1
 
 class ConnectionTile:
     def __init__(self, x, y):
@@ -187,3 +191,6 @@ def handle_horizontal_connection(grid, num1, num2):
         grid.set_connection(num1.x, i, direction)
 
     return grid    
+
+
+# TODO bottom middle 4.
