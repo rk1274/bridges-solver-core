@@ -8,7 +8,7 @@ def start(grid):
     make_connections(numbers, grid)
 
 def sort(number):
-    return number._num_pos_connections-number._numConnectionsLeft
+    return number.get_num_possible_connections()-number._num_connections_left
 
 def get_and_populate_numbers(grid):
     numbers = []
@@ -78,7 +78,7 @@ def make_connections(numbers, grid):
         if len(posCons) == 0:
             break
 
-        if posCons[conNumber].numPossible == 2:
+        if posCons[conNumber].num_possible == 2:
             grid.connect_numbers(number, conNumber)
 
         grid.connect_numbers(number, conNumber)

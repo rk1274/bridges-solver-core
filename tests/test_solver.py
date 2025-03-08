@@ -66,7 +66,7 @@ class TestBridgesSolver(unittest.TestCase):
 
     def test_game(self):
         start(self.grid)
-        #print(self.grid)
+        print(self.grid)
 
     def test_populate_number_tile_fields(self):
         grid = Grid(3, 3)
@@ -82,19 +82,19 @@ class TestBridgesSolver(unittest.TestCase):
             grid.set_number(number)
 
         set_possible_connections(grid.grid, numbers[0])
-        self.assertEqual(numbers[0]._num_pos_connections, 4)
-        self.assertIn(numbers[1], numbers[0]._posConnections)
-        self.assertIn(numbers[2], numbers[0]._posConnections)
-        self.assertNotIn(numbers[3], numbers[0]._posConnections)
+        self.assertEqual(numbers[0].get_num_possible_connections(), 4)
+        self.assertIn(numbers[1], numbers[0]._pos_connections)
+        self.assertIn(numbers[2], numbers[0]._pos_connections)
+        self.assertNotIn(numbers[3], numbers[0]._pos_connections)
 
         set_possible_connections(grid.grid, numbers[1])
-        self.assertEqual(numbers[1]._num_pos_connections, 3)
+        self.assertEqual(numbers[1].get_num_possible_connections(), 3)
 
         set_possible_connections(grid.grid, numbers[2])
-        self.assertEqual(numbers[1]._num_pos_connections, 3)
+        self.assertEqual(numbers[1].get_num_possible_connections(), 3)
 
         set_possible_connections(grid.grid, numbers[3])
-        self.assertEqual(numbers[3]._num_pos_connections, 2)
+        self.assertEqual(numbers[3].get_num_possible_connections(), 2)
 
         # sort test
         numbers_sorted = [
@@ -110,16 +110,16 @@ class TestBridgesSolver(unittest.TestCase):
         # make connections test
 
         make_connections([numbers[0]], grid)
-        self.assertEqual(numbers[0]._num_pos_connections, 0)
+        self.assertEqual(numbers[0].get_num_possible_connections(), 0)
 
         make_connections([numbers[1]], grid)
-        self.assertEqual(numbers[1]._num_pos_connections, 0)
+        self.assertEqual(numbers[1].get_num_possible_connections(), 0)
 
         make_connections([numbers[2]], grid)
-        self.assertEqual(numbers[2]._num_pos_connections, 0)
+        self.assertEqual(numbers[2].get_num_possible_connections(), 0)
 
         make_connections([numbers[3]], grid)
-        self.assertEqual(numbers[3]._num_pos_connections, 0)
+        self.assertEqual(numbers[3].get_num_possible_connections(), 0)
 
 
 
@@ -141,10 +141,10 @@ class TestBridgesSolver(unittest.TestCase):
         numbersUpdated = get_and_populate_numbers(grid.grid)
 
         make_connections([numbers[0]], grid)
-        self.assertEqual(numbers[0]._num_pos_connections, 0)
+        self.assertEqual(numbers[0].get_num_possible_connections(), 0)
 
         make_connections([numbers[3]], grid)
-        self.assertEqual(numbers[3]._num_pos_connections, 0)
+        self.assertEqual(numbers[3].get_num_possible_connections(), 0)
 
         print(grid)
 

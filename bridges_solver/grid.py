@@ -8,23 +8,22 @@ class Direction(Enum):
     RIGHT = "right"
 
 class PosConnection:
-    def __init__(self, direction, numPossible, number):
+    def __init__(self, direction, num_possible, number):
         self.number = number
         self.direction = direction
-        self.numPossible = numPossible
+        self.num_possible = num_possible
 
     def __str__(self):
-        return self.number + ":" + self.direction + ":" + self.numPossible
+        return self.number + ":" + self.direction + ":" + self.num_possible
 
 class NumberTile:
-    def __init__(self, num, x, y):
+    def __init__(self, num: int, x: int, y: int):
         self.number = num
         self.x = x
         self.y = y
-        self._posConnections = {}
-        self._num_pos_connections = 0
-        self._numConnectionsLeft = num
-        self._numConnections = 0
+        self._pos_connections = {}
+        self._num_connections_left = num
+        self._num_connections = 0
         self._complete = False
 
     def __str__(self):
@@ -34,46 +33,50 @@ class NumberTile:
         return str(self.number)+ " "
 
     def set_possible_connection(self, direction, num_possible, number):
-        self._posConnections[number]= PosConnection(direction, num_possible, number)
-        self._num_pos_connections += num_possible
+        self._pos_connections[number]= PosConnection(direction, num_possible, number)
 
-    def reduce_possible_connection(self, number):
-        self._posConnections.pop(number)
-
-    def reduce_possible_direction(self, direction):
-        to_remove = None
-        numPos = 0
-        for key, posCon in self._posConnections.items():
-            if posCon.direction == direction:
-                numPos = posCon.numPossible
-                to_remove = key
-                break  # Stop after finding the first match
-        if to_remove is not None:
-            self.reduce_possible_connection(to_remove)
-            to_remove._numPosConnections -=1
-
+    def remove_possible_connection(self, number):
+        self._pos_connections.pop(number)
 
     def get_possible_connections(self):
-        return self._posConnections
+        return self._pos_connections
+
+    def get_num_possible_connections(self):
+        num_pos_connections = 0
+
+        for number, pos_connection in self._pos_connections.items():
+            num_pos_connections += pos_connection.num_possible
+
+        return num_pos_connections
+
+    def reduce_possible_direction(self, direction):
+        connection_to_remove = None
+
+        for number, pos_con in self._pos_connections.items():
+            if pos_con.direction == direction:
+                connection_to_remove = pos_con
+
+                break
+
+        if connection_to_remove is not None:
+            self.remove_possible_connection(connection_to_remove.number)
 
     def add_connection(self, number):
         if self._complete:
             return
 
-        posCon = self._posConnections[number]
-        posCon.numPossible -= 1
+        pos_con = self._pos_connections[number]
 
-        if posCon.numPossible == 0:
-            self.reduce_possible_connection(number)
+        pos_con.num_possible -= 1
+        if pos_con.num_possible == 0:
+            self.remove_possible_connection(number)
 
-        self._num_pos_connections -=1
-        self._numConnectionsLeft -= 1
-        self._numConnections += 1
+        self._num_connections_left -= 1
+        self._num_connections += 1
 
-        if self._numConnectionsLeft == 0 or self._numConnections == self.number:
-            self._posConnections.clear()
+        if self._num_connections_left == 0 or self._num_connections == self.number:
+            self._pos_connections.clear()
             self._complete = True
-            self._num_pos_connections = 0
 
 class ConnectionTile:
     def __init__(self, x, y):
