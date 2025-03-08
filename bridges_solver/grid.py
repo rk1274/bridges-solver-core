@@ -13,23 +13,29 @@ class PosConnection:
         self.direction = direction
         self.numPossible = numPossible
 
+    def __str__(self):
+        return self.number + ":" + self.direction + ":" + self.numPossible
+
 class NumberTile:
     def __init__(self, num, x, y):
-        self._number = num
+        self.number = num
         self.x = x
         self.y = y
         self._posConnections = {}
-        self._numPosConnections = 0
+        self._num_pos_connections = 0
         self._numConnectionsLeft = num
         self._numConnections = 0
         self._complete = False
 
-    def display(self):
-        return str(self._number)+" "
+    def __str__(self):
+        return str(self.number)
 
-    def set_possible_connection(self, direction, numPossible, number):
-        self._posConnections[number]= PosConnection(direction, numPossible, number)
-        self._numPosConnections += numPossible
+    def display(self):
+        return str(self.number)+ " "
+
+    def set_possible_connection(self, direction, num_possible, number):
+        self._posConnections[number]= PosConnection(direction, num_possible, number)
+        self._num_pos_connections += num_possible
 
     def reduce_possible_connection(self, number):
         self._posConnections.pop(number)
@@ -42,33 +48,32 @@ class NumberTile:
                 numPos = posCon.numPossible
                 to_remove = key
                 break  # Stop after finding the first match
-
         if to_remove is not None:
             self.reduce_possible_connection(to_remove)
-            self._numPosConnections -= numPos
+            to_remove._numPosConnections -=1
+
 
     def get_possible_connections(self):
         return self._posConnections
 
     def add_connection(self, number):
-        if self._complete == True:
+        if self._complete:
             return
-        
+
         posCon = self._posConnections[number]
         posCon.numPossible -= 1
 
         if posCon.numPossible == 0:
             self.reduce_possible_connection(number)
 
+        self._num_pos_connections -=1
         self._numConnectionsLeft -= 1
         self._numConnections += 1
 
-        if self._numConnectionsLeft == 0 or self._numConnections == self._number:
+        if self._numConnectionsLeft == 0 or self._numConnections == self.number:
             self._posConnections.clear()
             self._complete = True
-
-        if self._numConnectionsLeft == 1 and len(self._posConnections) == 1:
-            self._numPosConnections -= 1
+            self._num_pos_connections = 0
 
 class ConnectionTile:
     def __init__(self, x, y):
@@ -156,8 +161,6 @@ class Grid:
 
         num1.add_connection(num2)
         num2.add_connection(num1)
-
-        num2._numPosConnections -=1
 
         if num1.y == num2.y:
             self = handle_vertical_connection(self, num1, num2)

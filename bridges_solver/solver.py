@@ -1,46 +1,77 @@
 from bridges_solver.grid import Grid, NumberTile, Direction
 
-def solve_puzzle(grid):
-    """
-    Function to solve the 'Bridges' puzzle. (Placeholder function)
-    This should be replaced with your actual puzzle-solving algorithm.
-    
-    :param grid: A 2D list representing the puzzle grid
-    :return: A 2D list representing the solved puzzle grid
-    """
-    # Placeholder implementation (just returns the input grid for now)
-    return grid
-
-def is_valid_move(grid, move):
-    """
-    Function to check if a move is valid in the 'Bridges' puzzle.
-    
-    :param grid: A 2D list representing the puzzle grid
-    :param move: A tuple representing the move
-    :return: True if the move is valid, False otherwise
-    """
-    # Placeholder validation (currently, it always returns True)
-    return True
-
-
-
-def Start(grid):
-    numbers = setNumPosConnections(grid.grid)
+def start(grid):
+    numbers = get_and_populate_numbers(grid.grid)
 
     numbers.sort(key=sort)
 
-    makeConnections(numbers, grid)
+    make_connections(numbers, grid)
 
-def makeConnections(numbers, grid):
+def sort(number):
+    return number._num_pos_connections-number._numConnectionsLeft
+
+def get_and_populate_numbers(grid):
+    numbers = []
+
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            if isinstance(grid[i][j], NumberTile):
+                set_possible_connections(grid, grid[i][j])
+
+                numbers.append(grid[i][j])
+
+    return numbers
+
+def set_possible_connections(grid, number_tile):
+    """
+        Populates the possible connection fields of a number tile in the grid.
+
+        Args:
+            grid (list[list[NumberTile]]): A 2D list representing the grid containing NumberTiles.
+            number_tile (NumberTile): The number tile to populate its possible connections.
+
+        Direction (Direction): Enum representing the direction of the connection.
+
+        The function checks the grid in all four directions (left, right, up, down) from the position of the given
+        number tile. It sets possible connections between the given number tile and any adjacent number tiles found
+        in those directions.
+    """
+
+    def set_connection(new_x, new_y, new_direction):
+        if 0 <= new_x < len(grid) and 0 <= new_y < len(grid[0]) and isinstance(grid[new_x][new_y], NumberTile):
+            num_cons = min(2, grid[new_x][new_y].number, number_tile.number)
+
+            number_tile.set_possible_connection(new_direction, num_cons, grid[new_x][new_y])
+
+            return True
+
+        return False
+
+    x, y = number_tile.x, number_tile.y
+
+    directions = {
+        "LEFT": (0, -1),
+        "RIGHT": (0, 1),
+        "UP": (-1, 0),
+        "DOWN": (1, 0)
+    }
+
+    for direction, (dx, dy) in directions.items():
+        nx, ny = x + dx, y + dy
+        while 0 <= nx < len(grid) and 0 <= ny < len(grid[0]):
+            if set_connection(nx, ny, Direction[direction]):
+                break
+            nx += dx
+            ny += dy
+
+
+def make_connections(numbers, grid):
     if len(numbers) == 0:
         return
-    
-    for num in numbers:
-        print(num._number, num._numConnectionsLeft, num._numPosConnections)
 
     number = numbers[0]
-    if number._numConnectionsLeft != number._numPosConnections:
-        return
+    # if number._numConnectionsLeft < number._numPosConnections:
+    #    return
 
     posCons = number.get_possible_connections()
     for conNumber in list(posCons.keys()):
@@ -54,59 +85,6 @@ def makeConnections(numbers, grid):
 
     numbers.remove(number)
 
-    numbers.sort(key=sort)  
+    numbers.sort(key=sort)
 
-    print(grid,"\n") 
-    
-    return makeConnections(numbers, grid)
-    
-
-
-
-def sort(number):
-    return number._numPosConnections-number._numConnectionsLeft
-
-
-def setNumPosConnections(grid):
-    numbers = []
-
-    for i in range(len(grid)):
-        for j in range(len(grid[i])):
-            if isinstance(grid[i][j], NumberTile):
-                populateNumberTileFields(grid, grid[i][j])
-
-                numbers.append(grid[i][j])
-
-    return numbers
-
-def populateNumberTileFields(grid, numberTile):
-    x, y = numberTile.x, numberTile.y
-    rows, cols = len(grid), len(grid[0])
-
-    for j in range(y - 1, -1, -1):  # Move left
-        if isinstance(grid[x][j], NumberTile):
-            numCons = min(2, grid[x][j]._number, numberTile._number)
-
-            numberTile.set_possible_connection(Direction.LEFT, numCons, grid[x][j])
-            break
-
-    for j in range(y + 1, cols):  # Move right
-        if isinstance(grid[x][j], NumberTile):
-            numCons = min(2, grid[x][j]._number, numberTile._number)
-
-            numberTile.set_possible_connection(Direction.RIGHT, numCons, grid[x][j])
-            break
-
-    for i in range(x - 1, -1, -1):  # Move up
-        if isinstance(grid[i][y], NumberTile):
-            numCons = min(2, grid[i][y]._number, numberTile._number)
-
-            numberTile.set_possible_connection(Direction.UP, numCons, grid[i][y])
-            break
-
-    for i in range(x + 1, rows):  # Move down
-        if isinstance(grid[i][y], NumberTile):
-            numCons = min(2, grid[i][y]._number, numberTile._number)
-
-            numberTile.set_possible_connection(Direction.DOWN, numCons, grid[i][y])
-            break
+    return make_connections(numbers, grid)
