@@ -42,12 +42,18 @@ class NumberTile:
         return self._pos_connections
 
     def get_num_possible_connections(self):
+        if len(self._pos_connections) == 1 and self._num_connections_left == 1:
+            return 1
+
         num_pos_connections = 0
 
         for number, pos_connection in self._pos_connections.items():
             num_pos_connections += pos_connection.num_possible
 
         return num_pos_connections
+
+    def is_complete(self):
+        return self._complete
 
     def reduce_possible_direction(self, direction):
         connection_to_remove = None
@@ -68,76 +74,73 @@ class NumberTile:
         pos_con = self._pos_connections[number]
 
         pos_con.num_possible -= 1
-        if pos_con.num_possible == 0:
+        if pos_con.num_possible == 0 or number.is_complete():
             self.remove_possible_connection(number)
 
         self._num_connections_left -= 1
         self._num_connections += 1
 
         if self._num_connections_left == 0 or self._num_connections == self.number:
+            # self._remove_self_from_others()
             self._pos_connections.clear()
             self._complete = True
+
+    def _remove_self_from_others(self):
+        for number, pos_con in self._pos_connections.items():
+            number.remove_possible_connection(self)
 
 class ConnectionTile:
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self._connections = 0
-        self._direction = ""
+        self._is_horizontal = False
 
     def display(self):
         if self._connections == 0:
             return "  "
-        
-        if self._connections == 1:
-            if self._direction in (Direction.LEFT, Direction.RIGHT):
-                return "--"
-            
-            return "| "
 
-        if self._direction in (Direction.LEFT, Direction.RIGHT):
-            return "=="
-            
-        return "||"
-    
-    def add_connection(self, grid, direction):
+        if self._connections == 1:
+            return "--" if self._is_horizontal else "| "
+
+        return "==" if self._is_horizontal else "||"
+
+    def add_connection(self, grid, is_horizontal):
         if self._connections == 2:
             return
             
         self._connections += 1
-        self._direction = direction
+        self._is_horizontal = is_horizontal
 
-        if self._direction in (Direction.UP, Direction.DOWN) : # vertical
-            for j in range(self.y - 1, -1, -1):
-                if isinstance(grid[self.x][j], NumberTile):
-                    grid[self.x][j].reduce_possible_direction(Direction.RIGHT)
-                    break  # Stop checking further left after first number
+        if is_horizontal: # horizontal
+            # Check UP
+            for i in range(self.x - 1, -1, -1):  # Move upwards
+                if isinstance(grid[i][self.y], NumberTile):
+                    grid[i][self.y].reduce_possible_direction(Direction.DOWN)  # Remove downward connection
+                    break  # Stop after the first number
 
-            # Check right
-            for j in range(self.y + 1, len(grid[0])):
-                if isinstance(grid[self.x][j], NumberTile):
-                    grid[self.x][j].reduce_possible_direction(Direction.LEFT)
-                    break  # Stop checking further right after
+            # Check DOWN
+            for i in range(self.x + 1, len(grid)):  # Move downwards
+                if isinstance(grid[i][self.y], NumberTile):
+                    grid[i][self.y].reduce_possible_direction(Direction.UP)  # Remove upward connection
+                    break  # Stop after the first number
 
             return
-        
-        # Check UP
-        for i in range(self.x - 1, -1, -1):  # Move upwards
-            if isinstance(grid[i][self.y], NumberTile):
-                grid[i][self.y].reduce_possible_direction(Direction.DOWN)  # Remove downward connection
-                break  # Stop after the first number
 
-        # Check DOWN
-        for i in range(self.x + 1, len(grid)):  # Move downwards
-            if isinstance(grid[i][self.y], NumberTile):
-                grid[i][self.y].reduce_possible_direction(Direction.UP)  # Remove upward connection
-                break  # Stop after the first number
+        for j in range(self.y - 1, -1, -1):
+            if isinstance(grid[self.x][j], NumberTile):
+                grid[self.x][j].reduce_possible_direction(Direction.RIGHT)
+                break  # Stop checking further left after first number
 
-        
+        # Check right
+        for j in range(self.y + 1, len(grid[0])):
+            if isinstance(grid[self.x][j], NumberTile):
+                grid[self.x][j].reduce_possible_direction(Direction.LEFT)
+                break  # Stop checking further right after
 
 
-class Grid:
-    def __init__(self, rows, cols):
+class Board:
+    def __init__(self, rows: int, cols: int):
         self.rows = rows
         self.cols = cols
 
@@ -155,48 +158,38 @@ class Grid:
         else:
             raise IndexError("Cell index out of bounds")
 
-    def set_connection(self, row, col, direction):
-        self.grid[row][col].add_connection(self.grid, direction)
+    def set_connection(self, connection_tile, is_horizontal):
+        connection_tile.add_connection(self.grid, is_horizontal)
 
     def connect_numbers(self, num1, num2):
-        if num1._complete or num2._complete:
+        if num1.is_complete() or num2.is_complete():
             return
 
         num1.add_connection(num2)
         num2.add_connection(num1)
 
         if num1.y == num2.y:
-            self = handle_vertical_connection(self, num1, num2)
+            handle_vertical_connection(self, num1, num2)
 
             return
         
-        self = handle_horizontal_connection(self, num1, num2)
+        handle_horizontal_connection(self, num1, num2)
 
-def handle_vertical_connection(grid, num1, num2):
-    start = min(num1.x, num2.x)
-    end = max(num1.x, num2.x)
-
-    direction = Direction.UP
-    if start < end:
-        direction = Direction.DOWN
+def handle_vertical_connection(board, num1, num2):
+    start, end = sorted([num1.x, num2.x])
 
     for i in range(start+1, end):
-        grid.set_connection(i, num1.y, direction)
+        board.set_connection(board.grid[i][num1.y], False)
 
-    return grid    
+    return board
 
-def handle_horizontal_connection(grid, num1, num2):
-    start = min(num1.y, num2.y)
-    end = max(num1.y, num2.y)
-
-    direction = Direction.RIGHT
-    if start < end:
-        direction = Direction.LEFT
+def handle_horizontal_connection(board, num1, num2):
+    start, end = sorted([num1.y, num2.y])
 
     for i in range(start+1, end):
-        grid.set_connection(num1.x, i, direction)
+        board.set_connection(board.grid[num1.x][i], True)
 
-    return grid    
+    return board
 
 
 # TODO bottom middle 4.

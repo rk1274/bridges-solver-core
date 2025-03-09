@@ -1,4 +1,4 @@
-from bridges_solver.grid import Grid, NumberTile, Direction
+from bridges_solver.board import Board, NumberTile, Direction
 
 def start(grid):
     numbers = get_and_populate_numbers(grid.grid)
@@ -6,9 +6,6 @@ def start(grid):
     numbers.sort(key=sort)
 
     make_connections(numbers, grid)
-
-def sort(number):
-    return number.get_num_possible_connections()-number._num_connections_left
 
 def get_and_populate_numbers(grid):
     numbers = []
@@ -41,6 +38,11 @@ def set_possible_connections(grid, number_tile):
         if 0 <= new_x < len(grid) and 0 <= new_y < len(grid[0]) and isinstance(grid[new_x][new_y], NumberTile):
             num_cons = min(2, grid[new_x][new_y].number, number_tile.number)
 
+            if number_tile.number == 2 and grid[new_x][new_y].number == 2:
+                num_cons = 1
+            elif number_tile.number == 1 and grid[new_x][new_y].number == 1:
+                return
+
             number_tile.set_possible_connection(new_direction, num_cons, grid[new_x][new_y])
 
             return True
@@ -65,26 +67,62 @@ def set_possible_connections(grid, number_tile):
             ny += dy
 
 
+def sort(number):
+    return number.get_num_possible_connections()-number._num_connections_left
+
 def make_connections(numbers, grid):
-    if len(numbers) == 0:
-        return
+    i = 0
+    while i < len(numbers):
+        number = numbers[i]
+        connections_before = number._num_connections_left  # Store the number of connections before making any move
 
-    number = numbers[0]
-    # if number._numConnectionsLeft < number._numPosConnections:
-    #    return
+        # If no possible moves, handle and remove the number
+        if number.get_num_possible_connections() - number._num_connections_left == 0:
+            handle_when_1(grid, number)
 
-    posCons = number.get_possible_connections()
-    for conNumber in list(posCons.keys()):
-        if len(posCons) == 0:
+            numbers.pop(i)  # Remove completed number
+
+            numbers.sort(key=sort)  # Re-sort after removal
+            i = 0  # Restart to ensure best move is picked
+
+            continue
+
+        # If only one connection is left to make
+        if number.get_num_possible_connections() - number._num_connections_left == 1 and number._num_connections_left != 1:
+            handle_when_2(grid, number)
+
+            if number._num_connections_left == 0:
+                print("Removing..", number, number.x, number.y, "because:", number.get_num_possible_connections(), "-", number._num_connections_left, "== 1")
+                numbers.pop(i)  # Remove fully connected number
+
+            # Only restart if a new connection was made
+            if number._num_connections_left < connections_before:
+                numbers.sort(key=sort)
+                i = 0
+            else:
+                i += 1
+
+            continue
+
+        i += 1  # Move to the next number if no action was taken
+
+
+def handle_when_1(grid, number):
+    pos_cons = number.get_possible_connections()
+    for number_to_connect in list(pos_cons.keys()):
+        if len(pos_cons) == 0:
             break
 
-        if posCons[conNumber].num_possible == 2:
-            grid.connect_numbers(number, conNumber)
+        if pos_cons[number_to_connect].num_possible == 2:
+            grid.connect_numbers(number, number_to_connect)
 
-        grid.connect_numbers(number, conNumber)
+        grid.connect_numbers(number, number_to_connect)
 
-    numbers.remove(number)
+def handle_when_2(grid, number):
+    pos_cons = number.get_possible_connections()
+    for number_to_connect in list(pos_cons.keys()):
+        if len(pos_cons) == 0:
+            break
 
-    numbers.sort(key=sort)
-
-    return make_connections(numbers, grid)
+        if pos_cons[number_to_connect].num_possible == 2:
+            grid.connect_numbers(number, number_to_connect)
