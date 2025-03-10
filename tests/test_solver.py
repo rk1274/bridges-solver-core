@@ -39,20 +39,29 @@ class TestBridgesSolver(unittest.TestCase):
         self.grid = grid_2()
         #print(grid)
 
-    def test_game_big(self):
+    def test_game_normal_big(self):
         grid = grid_1()
-        start(grid)
+        complete, final_grid = start(grid)
         print("-----------------------------------------------\n")
-        print(grid)
+        print(final_grid)
         print("\n-----------------------------------------------")
+        print(" - > is complete? [",complete,"] < - ")
 
-    def test_game_small(self):
+    def test_game_hard_small(self):
         grid = grid_2()
-        start(grid)
+        complete, final_grid = start(grid)
         print("-----------------------------------------------\n")
-        print(grid)
+        print(final_grid)
         print("\n-----------------------------------------------")
+        print(" - > is complete? [",complete,"] < - ")
 
+    def test_game_normal_small(self):
+        grid = grid_3()
+        complete, final_grid = start(grid)
+        print("-----------------------------------------------\n")
+        print(final_grid)
+        print("\n-----------------------------------------------")
+        print(" - > is complete? [",complete,"] < - ")
 
     def test_populate_number_tile_fields(self):
         grid = Board(3, 3)

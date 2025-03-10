@@ -1,3 +1,8 @@
+from operator import truediv
+import copy
+
+from nltk.sem.chat80 import continent
+
 from bridges_solver.board import Board, NumberTile, Direction
 
 def start(grid):
@@ -5,7 +10,7 @@ def start(grid):
 
     numbers.sort(key=sort)
 
-    make_connections(numbers, grid)
+    return make_connections(numbers, grid)
 
 def get_and_populate_numbers(grid):
     numbers = []
@@ -76,20 +81,6 @@ def make_connections(numbers, grid):
         number = numbers[i]
         connections_before = number._num_connections_left  # Store the number of connections before making any move
 
-        if number.number == 5 and number.x == 0 and number.y == 22:
-            print(
-                f"NumberTile {number.number} at ({number.x}, {number.y}) has {number._num_connections_left} connections left with {number.get_num_possible_connections()} possible cons.\n")
-            pos_cons = number.get_possible_connections()
-            for number_to_connect in list(pos_cons.keys()):
-                print(number_to_connect.number, number_to_connect.x, number_to_connect.y)
-
-        if number.number == 3 and number.x == 3 and number.y == 22:
-            print(
-                f"NumberTile {number.number} at ({number.x}, {number.y}) has {number._num_connections_left} connections left with {number.get_num_possible_connections()} possible cons.\n")
-            pos_cons = number.get_possible_connections()
-            # for number_to_connect in list(pos_cons.keys()):
-            #     print(number_to_connect.number, number_to_connect.x, number_to_connect.y)
-
         # If no possible moves, handle and remove the number
         if number.get_num_possible_connections() - number._num_connections_left == 0:
             if number._num_connections_left == 0:
@@ -109,7 +100,6 @@ def make_connections(numbers, grid):
             handle_when_2(grid, number)
 
             if number._num_connections_left == 0:
-                print("Removing..", number, number.x, number.y, "because:", number.get_num_possible_connections(), "-", number._num_connections_left, "== 1")
                 numbers.pop(i)  # Remove fully connected number
 
             # Only restart if a new connection was made
@@ -121,7 +111,34 @@ def make_connections(numbers, grid):
 
             continue
 
+        # .. new thing!
+
+        pos_cons = number.get_possible_connections()
+        for number_to_connect in list(pos_cons.keys()):
+            if len(pos_cons) == 0:
+                break
+
+            index_number = numbers.index(number)
+            index_to_connect = numbers.index(number_to_connect)
+
+            copied_numbers = copy.deepcopy(numbers)
+            copied_grid = copy.deepcopy(grid)
+
+            copied_num = copied_numbers[index_number]
+            copied_to_connect = copied_numbers[index_to_connect]
+
+            copied_grid.connect_numbers(copied_num, copied_to_connect)
+
+            complete, copied_grid = make_connections(copied_numbers, copied_grid)
+            if complete:
+                return True, copied_grid
+
         i += 1  # Move to the next number if no action was taken
+
+    if len(numbers) == 0:
+        return True, grid
+
+    return False, grid
 
 
 def handle_when_1(grid, number):
