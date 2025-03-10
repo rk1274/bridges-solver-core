@@ -36,6 +36,9 @@ class NumberTile:
         self._pos_connections[number]= PosConnection(direction, num_possible, number)
 
     def remove_possible_connection(self, number):
+        if self._pos_connections.get(number) is None:
+            return
+
         self._pos_connections.pop(number)
 
     def get_possible_connections(self):
@@ -55,6 +58,14 @@ class NumberTile:
     def is_complete(self):
         return self._complete
 
+    def set_complete(self):
+
+        for number, pos_con in self._pos_connections.items():
+            if self.number == 3 and self.x == 3 and self.y == 22:
+                print("removing...", number.number, number.x, number.y)
+            number.remove_possible_connection(self)
+        self._complete = True
+
     def reduce_possible_direction(self, direction):
         connection_to_remove = None
 
@@ -71,19 +82,22 @@ class NumberTile:
         if self._complete:
             return
 
-        pos_con = self._pos_connections[number]
+        if self._pos_connections.get(number) is not None:
+            pos_con = self._pos_connections[number]
 
-        pos_con.num_possible -= 1
-        if pos_con.num_possible == 0 or number.is_complete():
-            self.remove_possible_connection(number)
+            pos_con.num_possible -= 1
+            if pos_con.num_possible == 0 or number.is_complete():
+                self.remove_possible_connection(number)
 
         self._num_connections_left -= 1
         self._num_connections += 1
 
         if self._num_connections_left == 0 or self._num_connections == self.number:
-            # self._remove_self_from_others()
+            #TODO, make this work lol
+            self._remove_self_from_others()
             self._pos_connections.clear()
             self._complete = True
+            self._num_connections_left = 0
 
     def _remove_self_from_others(self):
         for number, pos_con in self._pos_connections.items():

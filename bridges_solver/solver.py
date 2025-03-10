@@ -76,9 +76,26 @@ def make_connections(numbers, grid):
         number = numbers[i]
         connections_before = number._num_connections_left  # Store the number of connections before making any move
 
+        if number.number == 5 and number.x == 0 and number.y == 22:
+            print(
+                f"NumberTile {number.number} at ({number.x}, {number.y}) has {number._num_connections_left} connections left with {number.get_num_possible_connections()} possible cons.\n")
+            pos_cons = number.get_possible_connections()
+            for number_to_connect in list(pos_cons.keys()):
+                print(number_to_connect.number, number_to_connect.x, number_to_connect.y)
+
+        if number.number == 3 and number.x == 3 and number.y == 22:
+            print(
+                f"NumberTile {number.number} at ({number.x}, {number.y}) has {number._num_connections_left} connections left with {number.get_num_possible_connections()} possible cons.\n")
+            pos_cons = number.get_possible_connections()
+            # for number_to_connect in list(pos_cons.keys()):
+            #     print(number_to_connect.number, number_to_connect.x, number_to_connect.y)
+
         # If no possible moves, handle and remove the number
         if number.get_num_possible_connections() - number._num_connections_left == 0:
-            handle_when_1(grid, number)
+            if number._num_connections_left == 0:
+                number.set_complete()
+            else:
+                handle_when_1(grid, number)
 
             numbers.pop(i)  # Remove completed number
 
@@ -109,6 +126,7 @@ def make_connections(numbers, grid):
 
 def handle_when_1(grid, number):
     pos_cons = number.get_possible_connections()
+
     for number_to_connect in list(pos_cons.keys()):
         if len(pos_cons) == 0:
             break
