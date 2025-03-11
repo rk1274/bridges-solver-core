@@ -1,6 +1,7 @@
 import unittest
 from bridges_solver.solver import set_possible_connections,make_connections, start, sort, get_and_populate_numbers, handle_when_1, handle_when_2
 from bridges_solver.board import Board, NumberTile
+import time
 
 class TestBridgesSolver(unittest.TestCase):
     
@@ -41,11 +42,16 @@ class TestBridgesSolver(unittest.TestCase):
 
     def test_game_normal_big(self):
         grid = grid_1()
-        complete, final_grid = start(grid)
+        (complete, final_grid), process = start(grid)
         print("-----------------------------------------------\n")
         print(final_grid)
         print("\n-----------------------------------------------")
         print(" - > is complete? [",complete,"] < - ")
+
+        for frame in process:
+            print("\033c", end="")  # Clears the screen for a smoother transition
+            print(frame)
+            time.sleep(0.1)
 
     def test_game_hard_small(self):
         grid = grid_2()
@@ -65,11 +71,16 @@ class TestBridgesSolver(unittest.TestCase):
 
     def test_game_hard_big(self):
         grid = grid_4()
-        complete, final_grid = start(grid)
+        (complete, final_grid), process = start(grid)
         print("-----------------------------------------------\n")
         print(final_grid)
         print("\n-----------------------------------------------")
-        print(" - > is complete? [",complete,"] < - ")
+        print(" - > is complete? [", complete, "] < - ")
+
+        for frame in process:
+            print("\033c", end="")  # Clears the screen for a smoother transition
+            print(frame)
+            time.sleep(0.1)
 
     def test_populate_number_tile_fields(self):
         grid = Board(3, 3)

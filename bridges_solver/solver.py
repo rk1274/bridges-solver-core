@@ -2,12 +2,14 @@ import copy
 
 from bridges_solver.board import Board, NumberTile, Direction
 
+process = [""]
+
 def start(grid):
     numbers = get_and_populate_numbers(grid.grid)
 
     numbers.sort(key=sort)
 
-    return make_connections(numbers, grid)
+    return make_connections(numbers, grid), process
 
 def get_and_populate_numbers(grid):
     numbers = []
@@ -121,7 +123,6 @@ def make_connections(numbers, grid):
 
     return False, grid
 
-
 def handle_when_1(grid, number):
     pos_cons = number.get_possible_connections()
 
@@ -131,8 +132,10 @@ def handle_when_1(grid, number):
 
         if pos_cons[number_to_connect].num_possible == 2:
             grid.connect_numbers(number, number_to_connect)
+            process.append(str(grid))
 
         grid.connect_numbers(number, number_to_connect)
+        process.append(str(grid))
 
 def handle_when_2(grid, number):
     pos_cons = number.get_possible_connections()
@@ -142,6 +145,7 @@ def handle_when_2(grid, number):
 
         if pos_cons[number_to_connect].num_possible == 2:
             grid.connect_numbers(number, number_to_connect)
+            process.append(str(grid))
 
 def handle_when_3(grid, number, numbers):
     pos_cons = number.get_possible_connections()
