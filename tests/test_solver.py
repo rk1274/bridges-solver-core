@@ -63,6 +63,14 @@ class TestBridgesSolver(unittest.TestCase):
         print("\n-----------------------------------------------")
         print(" - > is complete? [",complete,"] < - ")
 
+    def test_game_hard_big(self):
+        grid = grid_4()
+        complete, final_grid = start(grid)
+        print("-----------------------------------------------\n")
+        print(final_grid)
+        print("\n-----------------------------------------------")
+        print(" - > is complete? [",complete,"] < - ")
+
     def test_populate_number_tile_fields(self):
         grid = Board(3, 3)
 
@@ -116,10 +124,6 @@ class TestBridgesSolver(unittest.TestCase):
         make_connections([numbers[3]], grid)
         self.assertEqual(numbers[3].get_num_possible_connections(), 0)
 
-        print(grid)
-
-
-
     def test_2(self):
         grid = Board(5, 5)
 
@@ -147,8 +151,6 @@ class TestBridgesSolver(unittest.TestCase):
         handle_when_2(grid, numbers[4])
         self.assertEqual(numbers[4].get_num_possible_connections(), 2)
 
-        print(grid)
-
     def test_3(self):
         grid = Board(5, 5)
 
@@ -169,9 +171,6 @@ class TestBridgesSolver(unittest.TestCase):
         make_connections([numbers[0]],grid)
         self.assertEqual(numbers[0].get_num_possible_connections(), 0)
 
-
-        print(grid)
-
     def test_4(self):
         grid = Board(5, 3)
 
@@ -188,43 +187,155 @@ class TestBridgesSolver(unittest.TestCase):
 
         get_and_populate_numbers(grid.grid)
 
-        for number in numbers:
-            print("number:", number,"num diff possible:", len(number.get_possible_connections()), "num yeahh:", number.get_num_possible_connections())
-
-            # number: 2 num possible: 2 - 3
-            # number: 2 numpossible: 2 - 4
-            # number: 1  numpossible: 2 - 2
-            # number: 3 numpossible: 3 - 5
-            # number: 2 numpossible: 1 - 2
-            #
-            # number: 2 num possible: 2 - 2
-            # number: 2 num possible: 2 - 3
-            # number: 1 num possible: 1 - 1
-            # number: 3 num possible: 3 - 5
-            # number: 2  num possible: 1 -  2
-
-        # numbers.sort(key=sort)
-
         make_connections([numbers[4]], grid)
         numbers.remove(numbers[4])
         make_connections([numbers[0]], grid)
         numbers.sort(key=sort)
 
-        for num in numbers:
-            print(num, num.x, num.y, " // ", num.get_num_possible_connections(), num._num_connections_left)
+def grid_4():
+    grid = Board(25, 25)
+
+    grid.set_number(NumberTile(1, 0, 0))
+    grid.set_number(NumberTile(1, 0, 3))
+    grid.set_number(NumberTile(1, 0, 5))
+    grid.set_number(NumberTile(2, 0, 7))
+    grid.set_number(NumberTile(2, 0, 12))
+    grid.set_number(NumberTile(2, 0, 24))
+
+    grid.set_number(NumberTile(2, 1, 8))
+    grid.set_number(NumberTile(3, 1, 15))
+    grid.set_number(NumberTile(3, 1, 20))
+    grid.set_number(NumberTile(1, 1, 23))
+
+    grid.set_number(NumberTile(3, 2, 0))
+    grid.set_number(NumberTile(6, 2, 3))
+    grid.set_number(NumberTile(4, 2, 10))
+    grid.set_number(NumberTile(2, 2, 12))
+    grid.set_number(NumberTile(5, 2, 14))
+    grid.set_number(NumberTile(2, 2, 19))
+
+    # Third row
+    grid.set_number(NumberTile(4, 4, 10))
+    grid.set_number(NumberTile(2, 4, 22))
+
+    # Fourth row
+    grid.set_number(NumberTile(2, 5, 15))
+    grid.set_number(NumberTile(5, 5, 17))
+    grid.set_number(NumberTile(3, 5, 19))
+
+    # Fifth row
+    grid.set_number(NumberTile(2, 6, 10))
+
+    grid.set_number(NumberTile(3, 7, 0))
+    grid.set_number(NumberTile(6, 7, 3))
+    grid.set_number(NumberTile(5, 7, 14))
+    grid.set_number(NumberTile(6, 7, 17))
+    grid.set_number(NumberTile(7, 7, 20))
+    grid.set_number(NumberTile(5, 7, 22))
+
+    grid.set_number(NumberTile(2, 8, 2))
+
+    # Sixth row
+    grid.set_number(NumberTile(2, 9, 17))
+
+    grid.set_number(NumberTile(4, 10, 0))
+    grid.set_number(NumberTile(5, 10, 2))
 
 
+    # Seventh row
+    grid.set_number(NumberTile(2, 11, 4))
+    grid.set_number(NumberTile(3, 11, 14))
+    grid.set_number(NumberTile(2, 11, 22))
 
-        print(grid)
+    # Eighth row
+    grid.set_number(NumberTile(1, 12, 2))
+    grid.set_number(NumberTile(2, 12, 6))
+    grid.set_number(NumberTile(3, 12, 9))
+    grid.set_number(NumberTile(3, 12, 20))
+
+    grid.set_number(NumberTile(5, 13, 0))
+    grid.set_number(NumberTile(6, 13, 3))
+    grid.set_number(NumberTile(5, 13, 23))
+
+    # Ninth row
+    grid.set_number(NumberTile(2, 15, 4))
+    grid.set_number(NumberTile(3, 15, 9))
+    grid.set_number(NumberTile(4, 15, 16))
+    grid.set_number(NumberTile(1, 15, 20))
+
+    grid.set_number(NumberTile(3, 16, 0))
+
+    # Tenth row
+    grid.set_number(NumberTile(2, 17, 23))
+
+    grid.set_number(NumberTile(2, 18, 1))
+    grid.set_number(NumberTile(5, 18, 3))
+    grid.set_number(NumberTile(6, 18, 16))
+    grid.set_number(NumberTile(4, 18, 24))
 
 
-    #def test_solve_puzzle(self):
-        """
-        Test the solve_puzzle function.
-        Here, you would check if the puzzle is being solved correctly.
-        """
-       # result = solve_puzzle(self.sample_grid)
-       # self.assertEqual(result, self.sample_grid)  # Since the placeholder just returns the input grid
+    # Twelfth row
+    grid.set_number(NumberTile(3, 20, 0))
+    grid.set_number(NumberTile(3, 20, 3))
+    grid.set_number(NumberTile(2, 20, 11))
+    grid.set_number(NumberTile(1, 20, 15))
+    grid.set_number(NumberTile(2, 20, 17))
+    grid.set_number(NumberTile(4, 20, 20))
+    grid.set_number(NumberTile(2, 20, 22))
+
+    grid.set_number(NumberTile(5, 22, 1))
+    grid.set_number(NumberTile(3, 22, 15))
+    grid.set_number(NumberTile(2, 22, 18))
+    grid.set_number(NumberTile(3, 22, 20))
+
+    grid.set_number(NumberTile(1, 23, 0))
+    grid.set_number(NumberTile(2, 23, 24))
+
+    # Thirteenth row
+    grid.set_number(NumberTile(4, 24, 1))
+    grid.set_number(NumberTile(3, 24, 4))
+    grid.set_number(NumberTile(2, 24, 6))
+    grid.set_number(NumberTile(3, 24, 16))
+    grid.set_number(NumberTile(2, 24, 22))
+
+    return grid
+
+def grid_2():
+    grid = Board(7, 7)
+
+    grid.set_number(NumberTile(3, 0, 0))
+    grid.set_number(NumberTile(4, 2, 0))
+    grid.set_number(NumberTile(4, 6, 0))
+    grid.set_number(NumberTile(3, 0, 2))
+    grid.set_number(NumberTile(3, 3, 2))
+    grid.set_number(NumberTile(4, 6, 2))
+    grid.set_number(NumberTile(1, 0, 5))
+    grid.set_number(NumberTile(3, 3, 5))
+    grid.set_number(NumberTile(2, 5, 5))
+    grid.set_number(NumberTile(2, 4, 6))
+    grid.set_number(NumberTile(3, 6, 6))
+
+    return grid
+
+def grid_3():
+    grid = Board(7, 7)
+
+    grid.set_number(NumberTile(4, 0, 0))
+    grid.set_number(NumberTile(6, 2, 0))
+    grid.set_number(NumberTile(5, 4, 0))
+    grid.set_number(NumberTile(1, 6, 0))
+    grid.set_number(NumberTile(1, 5, 1))
+    grid.set_number(NumberTile(2, 4, 2))
+    grid.set_number(NumberTile(3, 0, 3))
+    grid.set_number(NumberTile(5, 2, 3))
+    grid.set_number(NumberTile(3, 5, 3))
+    grid.set_number(NumberTile(1, 0, 5))
+    grid.set_number(NumberTile(2, 3, 5))
+    grid.set_number(NumberTile(3, 5, 5))
+    grid.set_number(NumberTile(3, 2, 6))
+    grid.set_number(NumberTile(1, 6, 6))
+
+    return grid
 
 def grid_1():
     grid = Board(25, 25)
@@ -337,43 +448,6 @@ def grid_1():
     grid.set_number(NumberTile(5, 24, 9))
     grid.set_number(NumberTile(4, 24, 21))
     grid.set_number(NumberTile(1, 24, 23))
-
-    return grid
-
-def grid_2():
-    grid = Board(7, 7)
-
-    grid.set_number(NumberTile(3, 0, 0))
-    grid.set_number(NumberTile(4, 2, 0))
-    grid.set_number(NumberTile(4, 6, 0))
-    grid.set_number(NumberTile(3, 0, 2))
-    grid.set_number(NumberTile(3, 3, 2))
-    grid.set_number(NumberTile(4, 6, 2))
-    grid.set_number(NumberTile(1, 0, 5))
-    grid.set_number(NumberTile(3, 3, 5))
-    grid.set_number(NumberTile(2, 5, 5))
-    grid.set_number(NumberTile(2, 4, 6))
-    grid.set_number(NumberTile(3, 6, 6))
-
-    return grid
-
-def grid_3():
-    grid = Board(7, 7)
-
-    grid.set_number(NumberTile(4, 0, 0))
-    grid.set_number(NumberTile(6, 2, 0))
-    grid.set_number(NumberTile(5, 4, 0))
-    grid.set_number(NumberTile(1, 6, 0))
-    grid.set_number(NumberTile(1, 5, 1))
-    grid.set_number(NumberTile(2, 4, 2))
-    grid.set_number(NumberTile(3, 0, 3))
-    grid.set_number(NumberTile(5, 2, 3))
-    grid.set_number(NumberTile(3, 5, 3))
-    grid.set_number(NumberTile(1, 0, 5))
-    grid.set_number(NumberTile(2, 3, 5))
-    grid.set_number(NumberTile(3, 5, 5))
-    grid.set_number(NumberTile(3, 2, 6))
-    grid.set_number(NumberTile(1, 6, 6))
 
     return grid
 

@@ -1,7 +1,4 @@
-from operator import truediv
 import copy
-
-from nltk.sem.chat80 import continent
 
 from bridges_solver.board import Board, NumberTile, Direction
 
@@ -46,7 +43,7 @@ def set_possible_connections(grid, number_tile):
             if number_tile.number == 2 and grid[new_x][new_y].number == 2:
                 num_cons = 1
             elif number_tile.number == 1 and grid[new_x][new_y].number == 1:
-                return
+                return True
 
             number_tile.set_possible_connection(new_direction, num_cons, grid[new_x][new_y])
 
@@ -71,38 +68,35 @@ def set_possible_connections(grid, number_tile):
             nx += dx
             ny += dy
 
-
+# This sort orders the list to put the 'easiest' numbers to deal with first.
 def sort(number):
-    return number.get_num_possible_connections()-number._num_connections_left
+    return (number.get_num_possible_connections() - number._num_connections_left, -number._num_connections_left)
 
 def make_connections(numbers, grid):
     i = 0
     while i < len(numbers):
         number = numbers[i]
-        connections_before = number._num_connections_left  # Store the number of connections before making any move
+        connections_before = number._num_connections_left
 
-        # If no possible moves, handle and remove the number
         if number.get_num_possible_connections() - number._num_connections_left == 0:
             if number._num_connections_left == 0:
                 number.set_complete()
             else:
                 handle_when_1(grid, number)
 
-            numbers.pop(i)  # Remove completed number
+            numbers.pop(i)
 
-            numbers.sort(key=sort)  # Re-sort after removal
-            i = 0  # Restart to ensure best move is picked
+            numbers.sort(key=sort)
+            i = 0
 
             continue
 
-        # If only one connection is left to make
         if number.get_num_possible_connections() - number._num_connections_left == 1 and number._num_connections_left != 1:
             handle_when_2(grid, number)
 
             if number._num_connections_left == 0:
-                numbers.pop(i)  # Remove fully connected number
+                numbers.pop(i)
 
-            # Only restart if a new connection was made
             if number._num_connections_left < connections_before:
                 numbers.sort(key=sort)
                 i = 0
@@ -111,29 +105,16 @@ def make_connections(numbers, grid):
 
             continue
 
-        # .. new thing!
+        # if number._num_connections_left == 1:
+        #     i += 1
+        #
+        #     continue
 
-        pos_cons = number.get_possible_connections()
-        for number_to_connect in list(pos_cons.keys()):
-            if len(pos_cons) == 0:
-                break
+        complete, final_grid = handle_when_3(grid, number, numbers)
+        if complete:
+            return True, final_grid
 
-            index_number = numbers.index(number)
-            index_to_connect = numbers.index(number_to_connect)
-
-            copied_numbers = copy.deepcopy(numbers)
-            copied_grid = copy.deepcopy(grid)
-
-            copied_num = copied_numbers[index_number]
-            copied_to_connect = copied_numbers[index_to_connect]
-
-            copied_grid.connect_numbers(copied_num, copied_to_connect)
-
-            complete, copied_grid = make_connections(copied_numbers, copied_grid)
-            if complete:
-                return True, copied_grid
-
-        i += 1  # Move to the next number if no action was taken
+        i += 1
 
     if len(numbers) == 0:
         return True, grid
@@ -161,3 +142,26 @@ def handle_when_2(grid, number):
 
         if pos_cons[number_to_connect].num_possible == 2:
             grid.connect_numbers(number, number_to_connect)
+
+def handle_when_3(grid, number, numbers):
+    pos_cons = number.get_possible_connections()
+    for number_to_connect in list(pos_cons.keys()):
+        if len(pos_cons) == 0:
+            break
+
+        index_number = numbers.index(number)
+        index_to_connect = numbers.index(number_to_connect)
+
+        copied_numbers = copy.deepcopy(numbers)
+        copied_grid = copy.deepcopy(grid)
+
+        copied_num = copied_numbers[index_number]
+        copied_to_connect = copied_numbers[index_to_connect]
+
+        copied_grid.connect_numbers(copied_num, copied_to_connect)
+
+        complete, copied_grid = make_connections(copied_numbers, copied_grid)
+        if complete:
+            return True, copied_grid
+
+    return False, grid
