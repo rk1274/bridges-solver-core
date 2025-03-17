@@ -4,6 +4,10 @@ from bridges_solver.board import Board, NumberTile, Direction
 
 process = [""]
 
+mainNumber = 0
+
+# badConnections = []
+
 def start(grid):
     numbers = get_and_populate_numbers(grid.grid)
 
@@ -75,10 +79,18 @@ def sort(number):
     return (number.get_num_possible_connections() - number._num_connections_left, -number._num_connections_left)
 
 def make_connections(numbers, grid):
+    global mainNumber
+    # print(mainNumber)
+    mainNumber += 1
     i = 0
     while i < len(numbers):
         number = numbers[i]
         connections_before = number._num_connections_left
+
+        # for num in numbers:
+        if number.get_num_possible_connections() - number._num_connections_left < 0:
+            mainNumber -= 1
+            return False, grid
 
         if number.get_num_possible_connections() - number._num_connections_left == 0:
             if number._num_connections_left == 0:
@@ -107,16 +119,17 @@ def make_connections(numbers, grid):
 
             continue
 
-        # if number._num_connections_left == 1:
-        #     i += 1
-        #
-        #     continue
+        print(grid)
+        return True, grid
 
         complete, final_grid = handle_when_3(grid, number, numbers)
         if complete:
+            mainNumber -= 1
             return True, final_grid
 
         i += 1
+
+    mainNumber -= 1
 
     if len(numbers) == 0:
         return True, grid
@@ -147,7 +160,9 @@ def handle_when_2(grid, number):
             grid.connect_numbers(number, number_to_connect)
             process.append(str(grid))
 
+
 def handle_when_3(grid, number, numbers):
+    global mainNumber
     pos_cons = number.get_possible_connections()
     for number_to_connect in list(pos_cons.keys()):
         if len(pos_cons) == 0:
@@ -161,6 +176,13 @@ def handle_when_3(grid, number, numbers):
 
         copied_num = copied_numbers[index_number]
         copied_to_connect = copied_numbers[index_to_connect]
+
+        if mainNumber == 1:
+            print("CONNECTING")
+
+            print(numbers)
+
+            print(grid)
 
         copied_grid.connect_numbers(copied_num, copied_to_connect)
 

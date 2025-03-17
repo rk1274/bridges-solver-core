@@ -25,6 +25,7 @@ class NumberTile:
         self._num_connections_left = num
         self._num_connections = 0
         self._complete = False
+        self._made_connections = {}
 
     def __str__(self):
         return str(self.number)
@@ -206,4 +207,25 @@ def handle_horizontal_connection(board, num1, num2):
     return board
 
 
-# TODO bottom middle 4.
+
+def search(prevNum, number):
+    # sort number.made
+
+    for num in number._made_connections:
+        if num == prevNum:
+            continue
+
+        if num.is_complete():
+            if search(number, num):
+                return True
+
+        return True
+
+    return False
+
+
+# TODO implement a breath first search or whatever to search if i just made an island after every connection I make.
+
+# ^ baso done, just make the _made_connections bit :p
+
+# TODO if i am a 2 and i have connected to a 1. i know i cant connect to anymore 1s (remove 1s from pos cons) <- same
