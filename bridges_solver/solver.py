@@ -4,17 +4,10 @@ from bridges_solver.board import Board, NumberTile, Direction
 
 process = [""]
 
-lengthOfOrig  = 0
-
-# badConnections = []
-
 def start(grid):
-    global lengthOfOrig
     numbers = get_and_populate_numbers(grid.grid)
 
     numbers.sort(key=sort)
-
-    lengthOfOrig = len(numbers)
 
     return make_connections(numbers, grid), process
 
@@ -176,30 +169,3 @@ def handle_when_3(grid, number, numbers):
             return True, copied_grid
 
     return False, grid
-
-# unused
-def search(number):
-    """Checks if the number is isolated (forms an island)."""
-    visited = set()
-    stack = [number]  # Start with the given number
-
-    while stack:
-        num = stack.pop()
-
-        if num in visited:
-            continue  # Skip already checked numbers
-
-        visited.add(num)
-
-        for connected in num._made_connections:
-            if not connected.is_complete():
-                return False
-
-            if connected not in visited:
-                stack.append(connected)
-
-    if len(visited) == lengthOfOrig:
-        return False
-
-    # If all connected nodes form an isolated component, return True (it's an island)
-    return True

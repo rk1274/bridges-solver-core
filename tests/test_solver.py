@@ -2,93 +2,90 @@ import unittest
 from bridges_solver.solver import set_possible_connections,make_connections, start, sort, get_and_populate_numbers, handle_when_1, handle_when_2
 from bridges_solver.board import Board, NumberTile
 import time
+import json
+
+def load_boards():
+    with open("tests/boards.json", "r") as file:
+        return json.load(file)
 
 class TestBridgesSolver(unittest.TestCase):
-    
+    @classmethod
+    def setUpClass(cls):
+        cls.boards = load_boards()
+
     def setUp(self):
         """
         This method is run before each test to set up any state.
         It could be used to initialize grids or other required variables.
         """
-        self.sample_grid = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
-        ]
-        self.invalid_move = (1, 1)  # Example of an invalid move (placeholder)
-        self.valid_move = (0, 1)    # Example of a valid move (placeholder)
 
+    def create_board(self, board_name):
+        """Creates a Board instance from JSON data"""
+        data = self.boards[board_name]
+        board = Board(data["height"], data["width"])
 
+        for i, row in enumerate(data["grid"]):
+            for j, cell in enumerate(row):
+                if data["grid"][i][j].isnumeric():
+                    board.set_number(NumberTile(int(data["grid"][i][j]), i, j, ))
 
+        return board
 
-        
-        #print(grid)
-
-        #print("---------------------------")
-
-        #grid.connect_numbers(NumberTile(1, 6, 6), NumberTile(1, 6, 0))
-        #grid.connect_numbers(NumberTile(4, 0, 0), NumberTile(3, 0, 3))
-        #grid.connect_numbers(NumberTile(3, 5, 3), NumberTile(5, 2, 3))
-
-        #print(grid)
-
-        #print("---------------------------")
-
-        #grid.connect_numbers(NumberTile(1, 6, 6), NumberTile(1, 6, 0))
-        #grid.connect_numbers(NumberTile(3, 5, 3), NumberTile(5, 2, 3))
-
-        self.grid = grid_2()
-        #print(grid)
-
-    def test_game_t(self):
-        grid = grid_5()
+    def test_game_complex(self):
+        grid = self.create_board("grid_complex")
         (complete, final_grid), process = start(grid)
         print("-----------------------------------------------\n")
         print(final_grid)
         print("\n-----------------------------------------------")
         print(" - > is complete? [", complete, "] < - ")
+
+        assert complete
+
+        # display_process(process)
 
     def test_game_normal_big(self):
-        grid = grid_1()
+        grid = self.create_board("grid_normal_big")
         (complete, final_grid), process = start(grid)
         print("-----------------------------------------------\n")
         print(final_grid)
         print("\n-----------------------------------------------")
         print(" - > is complete? [",complete,"] < - ")
 
-        # for frame in process:
-        #     print("\033c", end="")  # Clears the screen for a smoother transition
-        #     print(frame)
-        #     time.sleep(0.1)
+        assert complete
+
+        # display_process(process)
 
     def test_game_hard_small(self):
-        grid = grid_2()
-        (complete, final_grid), process = start(grid)
-        print("-----------------------------------------------\n")
-        print(final_grid)
-        print("\n-----------------------------------------------")
-        print(" - > is complete? [",complete,"] < - ")
-
-    def test_game_normal_small(self):
-        grid = grid_3()
-        (complete, final_grid), process = start(grid)
-        print("-----------------------------------------------\n")
-        print(final_grid)
-        print("\n-----------------------------------------------")
-        print(" - > is complete? [",complete,"] < - ")
-
-    def test_game_hard_big(self):
-        grid = grid_4()
+        grid = self.create_board("grid_hard_small")
         (complete, final_grid), process = start(grid)
         print("-----------------------------------------------\n")
         print(final_grid)
         print("\n-----------------------------------------------")
         print(" - > is complete? [", complete, "] < - ")
 
-        # for frame in process:
-        #     print("\033c", end="")  # Clears the screen for a smoother transition
-        #     print(frame)
-        #     time.sleep(0.1)
+        assert complete
+
+    def test_game_normal_small(self):
+        grid = self.create_board("grid_normal_small")
+        (complete, final_grid), process = start(grid)
+        print("-----------------------------------------------\n")
+        print(final_grid)
+        print("\n-----------------------------------------------")
+        print(" - > is complete? [",complete,"] < - ")
+
+        assert complete
+
+    def test_game_hard_big(self):
+        grid = self.create_board("grid_hard_big")
+        (complete, final_grid), process = start(grid)
+        print("-----------------------------------------------\n")
+        print(final_grid)
+        print("\n-----------------------------------------------")
+        print(" - > is complete? [", complete, "] < - ")
+
+        assert complete
+
+        # display_process(process)
 
     def test_populate_number_tile_fields(self):
         grid = Board(3, 3)
@@ -211,334 +208,11 @@ class TestBridgesSolver(unittest.TestCase):
         make_connections([numbers[0]], grid)
         numbers.sort(key=sort)
 
-def grid_5():
-    grid = Board(20, 16)
-
-    thing = [
-     ["","2","","2","","","","2","","","","3","","4","",""], #1
-     ["1","","1","","3","","2","","","","3","","2","","","1"], #2
-     ["","","","","","","","","","","","","","2","",""], #3
-     ["","3","","","5","","","","","2","","","5","","","4"], #4
-     ["3","","5","","","","","4","","","4","","","","",""], #5
-     ["","","","","1","","2","","","3","","","","2","","3"], #6
-     ["","1","","2","","5","","1","","","4","","","","1",""], #7
-     ["2","","3","","2","","3","","3","","","","","1","",""], #8
-     ["","","","1","","4","","","","","4","","5","","4",""], #9
-     ["3","","1","","2","","","","3","","","","","1","","2"], #10
-     ["","2","","3","","","3","","","3","","","2","","",""], #11
-     ["","","","","","4","","","3","","2","","","","",""], #12
-     ["3","","","3","","","4","","","4","","4","","3","","2"], #13
-     ["","1","","","1","","","","","","1","","4","","5",""], #14
-     ["1","","","5","","4","","1","","4","","2","","","",""], #15
-     ["","3","","","","","","","1","","","","3","","","3"], #16
-     ["","","","3","","","5","","","","3","","","","5",""], #17
-     ["2","","","","","","","","","","","","","","",""], #18
-     ["","3","","","","","3","","1","","2","","","1","","2"], #19
-     ["4","","3","","","","","2","","","","","2","","3",""]] #20
-
-    thing2 = [
-        ["", "2", "", "2", "", "", "", "2", "", "", "", "", "", "", "", "", "", "", "", "", "3", "", "4", "", ""],  # 1
-        ["1", "", "1", "", "3", "", "2", "", "", "", "", "", "", "", "", "", "", "", "", "3", "", "2", "", "", "1"],
-        # 2
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "2", "", ""],  # 3
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "5", "", "", "", "", "2", "", "", "5", "", "", "4"],  # 4
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 5
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 6
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 7
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 8
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 9
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 10
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 11
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 12
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 13
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 14
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 15
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 16
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 17
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 18
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 19
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 20
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 21
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 22
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 23
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],  # 24
-        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]]  # 25
-
-
-
-    for i in range(20):
-        for j in range(16):
-            if thing[i][j].isnumeric():
-                grid.set_number(NumberTile(int(thing[i][j]), i, j, ))
-
-    print(grid)
-
-    return grid
-
-def grid_4():
-    grid = Board(25, 25)
-
-
-
-    grid.set_number(NumberTile(1, 0, 0))
-    grid.set_number(NumberTile(1, 0, 3))
-    grid.set_number(NumberTile(1, 0, 5))
-    grid.set_number(NumberTile(2, 0, 7))
-    grid.set_number(NumberTile(2, 0, 12))
-    grid.set_number(NumberTile(2, 0, 24))
-
-    grid.set_number(NumberTile(2, 1, 8))
-    grid.set_number(NumberTile(3, 1, 15))
-    grid.set_number(NumberTile(3, 1, 20))
-    grid.set_number(NumberTile(1, 1, 23))
-
-    grid.set_number(NumberTile(3, 2, 0))
-    grid.set_number(NumberTile(6, 2, 3))
-    grid.set_number(NumberTile(4, 2, 10))
-    grid.set_number(NumberTile(2, 2, 12))
-    grid.set_number(NumberTile(5, 2, 14))
-    grid.set_number(NumberTile(2, 2, 19))
-
-    # Third row
-    grid.set_number(NumberTile(4, 4, 10))
-    grid.set_number(NumberTile(2, 4, 22))
-
-    # Fourth row
-    grid.set_number(NumberTile(2, 5, 15))
-    grid.set_number(NumberTile(5, 5, 17))
-    grid.set_number(NumberTile(3, 5, 19))
-
-    # Fifth row
-    grid.set_number(NumberTile(2, 6, 10))
-
-    grid.set_number(NumberTile(3, 7, 0))
-    grid.set_number(NumberTile(6, 7, 3))
-    grid.set_number(NumberTile(5, 7, 14))
-    grid.set_number(NumberTile(6, 7, 17))
-    grid.set_number(NumberTile(7, 7, 20))
-    grid.set_number(NumberTile(5, 7, 22))
-
-    grid.set_number(NumberTile(2, 8, 2))
-
-    # Sixth row
-    grid.set_number(NumberTile(2, 9, 17))
-
-    grid.set_number(NumberTile(4, 10, 0))
-    grid.set_number(NumberTile(5, 10, 2))
-
-
-    # Seventh row
-    grid.set_number(NumberTile(2, 11, 4))
-    grid.set_number(NumberTile(3, 11, 14))
-    grid.set_number(NumberTile(2, 11, 22))
-
-    # Eighth row
-    grid.set_number(NumberTile(1, 12, 2))
-    grid.set_number(NumberTile(2, 12, 6))
-    grid.set_number(NumberTile(3, 12, 9))
-    grid.set_number(NumberTile(3, 12, 20))
-
-    grid.set_number(NumberTile(5, 13, 0))
-    grid.set_number(NumberTile(6, 13, 3))
-    grid.set_number(NumberTile(5, 13, 23))
-
-    # Ninth row
-    grid.set_number(NumberTile(2, 15, 4))
-    grid.set_number(NumberTile(3, 15, 9))
-    grid.set_number(NumberTile(4, 15, 16))
-    grid.set_number(NumberTile(1, 15, 20))
-
-    grid.set_number(NumberTile(3, 16, 0))
-
-    # Tenth row
-    grid.set_number(NumberTile(2, 17, 23))
-
-    grid.set_number(NumberTile(2, 18, 1))
-    grid.set_number(NumberTile(5, 18, 3))
-    grid.set_number(NumberTile(6, 18, 16))
-    grid.set_number(NumberTile(4, 18, 24))
-
-
-    # Twelfth row
-    grid.set_number(NumberTile(3, 20, 0))
-    grid.set_number(NumberTile(3, 20, 3))
-    grid.set_number(NumberTile(2, 20, 11))
-    grid.set_number(NumberTile(1, 20, 15))
-    grid.set_number(NumberTile(2, 20, 17))
-    grid.set_number(NumberTile(4, 20, 20))
-    grid.set_number(NumberTile(2, 20, 22))
-
-    grid.set_number(NumberTile(5, 22, 1))
-    grid.set_number(NumberTile(3, 22, 15))
-    grid.set_number(NumberTile(2, 22, 18))
-    grid.set_number(NumberTile(3, 22, 20))
-
-    grid.set_number(NumberTile(1, 23, 0))
-    grid.set_number(NumberTile(2, 23, 24))
-
-    # Thirteenth row
-    grid.set_number(NumberTile(4, 24, 1))
-    grid.set_number(NumberTile(3, 24, 4))
-    grid.set_number(NumberTile(2, 24, 6))
-    grid.set_number(NumberTile(3, 24, 16))
-    grid.set_number(NumberTile(2, 24, 22))
-
-    return grid
-
-def grid_2():
-    grid = Board(7, 7)
-
-    grid.set_number(NumberTile(3, 0, 0))
-    grid.set_number(NumberTile(4, 2, 0))
-    grid.set_number(NumberTile(4, 6, 0))
-    grid.set_number(NumberTile(3, 0, 2))
-    grid.set_number(NumberTile(3, 3, 2))
-    grid.set_number(NumberTile(4, 6, 2))
-    grid.set_number(NumberTile(1, 0, 5))
-    grid.set_number(NumberTile(3, 3, 5))
-    grid.set_number(NumberTile(2, 5, 5))
-    grid.set_number(NumberTile(2, 4, 6))
-    grid.set_number(NumberTile(3, 6, 6))
-
-    return grid
-
-def grid_3():
-    grid = Board(7, 7)
-
-    grid.set_number(NumberTile(4, 0, 0))
-    grid.set_number(NumberTile(6, 2, 0))
-    grid.set_number(NumberTile(5, 4, 0))
-    grid.set_number(NumberTile(1, 6, 0))
-    grid.set_number(NumberTile(1, 5, 1))
-    grid.set_number(NumberTile(2, 4, 2))
-    grid.set_number(NumberTile(3, 0, 3))
-    grid.set_number(NumberTile(5, 2, 3))
-    grid.set_number(NumberTile(3, 5, 3))
-    grid.set_number(NumberTile(1, 0, 5))
-    grid.set_number(NumberTile(2, 3, 5))
-    grid.set_number(NumberTile(3, 5, 5))
-    grid.set_number(NumberTile(3, 2, 6))
-    grid.set_number(NumberTile(1, 6, 6))
-
-    return grid
-
-def grid_1():
-    grid = Board(25, 25)
-
-    # First row
-    grid.set_number(NumberTile(2, 0, 0))
-    grid.set_number(NumberTile(2, 0, 3))
-    grid.set_number(NumberTile(3, 0, 7))
-    grid.set_number(NumberTile(5, 0, 22))
-    grid.set_number(NumberTile(4, 0, 24))
-
-    # Second row
-    grid.set_number(NumberTile(4, 2, 0))
-    grid.set_number(NumberTile(2, 2, 21))
-
-    # Third row
-    grid.set_number(NumberTile(1, 3, 6))
-    grid.set_number(NumberTile(5, 3, 8))
-    grid.set_number(NumberTile(3, 3, 22))
-
-    # Fourth row
-    grid.set_number(NumberTile(4, 5, 8))
-    grid.set_number(NumberTile(4, 5, 21))
-    grid.set_number(NumberTile(5, 5, 24))
-
-    # Fifth row
-    grid.set_number(NumberTile(4, 7, 0))
-    grid.set_number(NumberTile(4, 7, 24))
-
-    # Sixth row
-    grid.set_number(NumberTile(2, 9, 0))
-    grid.set_number(NumberTile(1, 9, 2))
-    grid.set_number(NumberTile(2, 9, 6))
-    grid.set_number(NumberTile(3, 9, 8))
-    grid.set_number(NumberTile(3, 9, 22))
-
-    # Seventh row
-    grid.set_number(NumberTile(2, 11, 0))
-    grid.set_number(NumberTile(3, 11, 19))
-    grid.set_number(NumberTile(4, 11, 22))
-
-    # Eighth row
-    grid.set_number(NumberTile(4, 13, 1))
-    grid.set_number(NumberTile(3, 13, 4))
-    grid.set_number(NumberTile(1, 13, 6))
-    grid.set_number(NumberTile(3, 13, 9))
-    grid.set_number(NumberTile(1, 13, 11))
-    grid.set_number(NumberTile(4, 13, 17))
-    grid.set_number(NumberTile(4, 13, 24))
-
-    # Ninth row
-    grid.set_number(NumberTile(2, 15, 1))
-    grid.set_number(NumberTile(2, 15, 5))
-    grid.set_number(NumberTile(7, 15, 9))
-    grid.set_number(NumberTile(4, 15, 17))
-    grid.set_number(NumberTile(3, 15, 21))
-    grid.set_number(NumberTile(3, 15, 23))
-
-    # Tenth row
-    grid.set_number(NumberTile(4, 17, 0))
-    grid.set_number(NumberTile(5, 17, 4))
-    grid.set_number(NumberTile(4, 17, 7))
-    grid.set_number(NumberTile(3, 17, 12))
-    grid.set_number(NumberTile(5, 17, 14))
-    grid.set_number(NumberTile(4, 17, 16))
-    grid.set_number(NumberTile(3, 17, 18))
-    grid.set_number(NumberTile(1, 17, 20))
-
-    grid.set_number(NumberTile(3, 18, 1))
-    grid.set_number(NumberTile(1, 18, 3))
-    grid.set_number(NumberTile(2, 18, 6))
-    # Eleventh row
-
-    grid.set_number(NumberTile(1, 19, 14))
-    grid.set_number(NumberTile(2, 19, 16))
-    grid.set_number(NumberTile(5, 19, 18))
-    grid.set_number(NumberTile(4, 19, 21))
-    grid.set_number(NumberTile(3, 19, 24))
-
-    # Twelfth row
-    grid.set_number(NumberTile(3, 20, 1))
-    grid.set_number(NumberTile(2, 20, 3))
-    grid.set_number(NumberTile(4, 20, 6))
-    grid.set_number(NumberTile(2, 20, 10))
-    grid.set_number(NumberTile(7, 20, 12))
-    grid.set_number(NumberTile(5, 20, 17))
-    grid.set_number(NumberTile(2, 20, 23))
-
-    grid.set_number(NumberTile(2, 21, 18))
-    grid.set_number(NumberTile(2, 21, 20))
-    grid.set_number(NumberTile(3, 21, 22))
-    grid.set_number(NumberTile(6, 21, 24))
-
-    grid.set_number(NumberTile(3, 22, 4))
-    grid.set_number(NumberTile(4, 22, 6))
-    grid.set_number(NumberTile(2, 22, 14))
-    grid.set_number(NumberTile(5, 22, 17))
-    grid.set_number(NumberTile(1, 22, 19))
-
-    grid.set_number(NumberTile(2, 23, 7))
-    grid.set_number(NumberTile(3, 23, 12))
-    grid.set_number(NumberTile(1, 23, 18))
-    grid.set_number(NumberTile(1, 23, 20))
-    grid.set_number(NumberTile(1, 23, 22))
-    grid.set_number(NumberTile(2, 23, 24))
-
-    # Thirteenth row
-    grid.set_number(NumberTile(4, 24, 0))
-    grid.set_number(NumberTile(4, 24, 3))
-    grid.set_number(NumberTile(5, 24, 9))
-    grid.set_number(NumberTile(4, 24, 21))
-    grid.set_number(NumberTile(1, 24, 23))
-
-    return grid
-
 if __name__ == '__main__':
     unittest.main()
 
     # python -m unittest discover tests/
 
     # python -m unittest tests.test_solver.TestBridgesSolver.test_3
+
+
