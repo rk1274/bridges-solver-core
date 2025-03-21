@@ -22,10 +22,10 @@ class NumberTile:
         self.x = x
         self.y = y
         self._pos_connections = {}
-        self._num_connections_left = num
+        self.num_connections_left = num
         self._num_connections = 0
         self._complete = False
-        self._made_connections = {}
+        self._made_connections = []
 
     def __str__(self):
         return str(self.number)
@@ -46,7 +46,7 @@ class NumberTile:
         return self._pos_connections
 
     def get_num_possible_connections(self):
-        if len(self._pos_connections) == 1 and self._num_connections_left == 1:
+        if len(self._pos_connections) == 1 and self.num_connections_left == 1:
             return 1
 
         num_pos_connections = 0
@@ -60,10 +60,7 @@ class NumberTile:
         return self._complete
 
     def set_complete(self):
-
         for number, pos_con in self._pos_connections.items():
-            if self.number == 3 and self.x == 3 and self.y == 22:
-                print("removing...", number.number, number.x, number.y)
             number.remove_possible_connection(self)
         self._complete = True
 
@@ -90,15 +87,26 @@ class NumberTile:
             if pos_con.num_possible == 0 or number.is_complete():
                 self.remove_possible_connection(number)
 
-        self._num_connections_left -= 1
+        self.num_connections_left -= 1
         self._num_connections += 1
 
-        if self._num_connections_left == 0 or self._num_connections == self.number:
+        self._made_connections.append(number)
+
+        if number.number == 1 and self.number == 2:
+            pos_cons = self.get_possible_connections()
+            for pos_con in pos_cons:
+                if pos_con.number == 1:
+                    self.remove_possible_connection(pos_con)
+                    pos_con.remove_possible_connection(self)
+
+                    break
+
+        if self.num_connections_left == 0 or self._num_connections == self.number:
             #TODO, make this work lol
             self._remove_self_from_others()
             self._pos_connections.clear()
             self._complete = True
-            self._num_connections_left = 0
+            self.num_connections_left = 0
 
     def _remove_self_from_others(self):
         for number, pos_con in self._pos_connections.items():
@@ -205,23 +213,6 @@ def handle_horizontal_connection(board, num1, num2):
         board.set_connection(board.grid[num1.x][i], True)
 
     return board
-
-
-
-def search(prevNum, number):
-    # sort number.made
-
-    for num in number._made_connections:
-        if num == prevNum:
-            continue
-
-        if num.is_complete():
-            if search(number, num):
-                return True
-
-        return True
-
-    return False
 
 
 # TODO implement a breath first search or whatever to search if i just made an island after every connection I make.

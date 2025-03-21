@@ -4,14 +4,17 @@ from bridges_solver.board import Board, NumberTile, Direction
 
 process = [""]
 
-mainNumber = 0
+lengthOfOrig  = 0
 
 # badConnections = []
 
 def start(grid):
+    global lengthOfOrig
     numbers = get_and_populate_numbers(grid.grid)
 
     numbers.sort(key=sort)
+
+    lengthOfOrig = len(numbers)
 
     return make_connections(numbers, grid), process
 
@@ -76,24 +79,20 @@ def set_possible_connections(grid, number_tile):
 
 # This sort orders the list to put the 'easiest' numbers to deal with first.
 def sort(number):
-    return (number.get_num_possible_connections() - number._num_connections_left, -number._num_connections_left)
+    return number.get_num_possible_connections() - number.num_connections_left, -number.num_connections_left
 
 def make_connections(numbers, grid):
-    global mainNumber
-    # print(mainNumber)
-    mainNumber += 1
     i = 0
     while i < len(numbers):
         number = numbers[i]
-        connections_before = number._num_connections_left
+        connections_before = number.num_connections_left
 
         # for num in numbers:
-        if number.get_num_possible_connections() - number._num_connections_left < 0:
-            mainNumber -= 1
+        if number.get_num_possible_connections() - number.num_connections_left < 0:
             return False, grid
 
-        if number.get_num_possible_connections() - number._num_connections_left == 0:
-            if number._num_connections_left == 0:
+        if number.get_num_possible_connections() - number.num_connections_left == 0:
+            if number.num_connections_left == 0:
                 number.set_complete()
             else:
                 handle_when_1(grid, number)
@@ -105,13 +104,13 @@ def make_connections(numbers, grid):
 
             continue
 
-        if number.get_num_possible_connections() - number._num_connections_left == 1 and number._num_connections_left != 1:
+        if number.get_num_possible_connections() - number.num_connections_left == 1 and number.num_connections_left != 1:
             handle_when_2(grid, number)
 
-            if number._num_connections_left == 0:
+            if number.num_connections_left == 0:
                 numbers.pop(i)
 
-            if number._num_connections_left < connections_before:
+            if number.num_connections_left < connections_before:
                 numbers.sort(key=sort)
                 i = 0
             else:
@@ -119,17 +118,11 @@ def make_connections(numbers, grid):
 
             continue
 
-        print(grid)
-        return True, grid
-
         complete, final_grid = handle_when_3(grid, number, numbers)
         if complete:
-            mainNumber -= 1
             return True, final_grid
 
         i += 1
-
-    mainNumber -= 1
 
     if len(numbers) == 0:
         return True, grid
@@ -162,7 +155,6 @@ def handle_when_2(grid, number):
 
 
 def handle_when_3(grid, number, numbers):
-    global mainNumber
     pos_cons = number.get_possible_connections()
     for number_to_connect in list(pos_cons.keys()):
         if len(pos_cons) == 0:
@@ -177,13 +169,6 @@ def handle_when_3(grid, number, numbers):
         copied_num = copied_numbers[index_number]
         copied_to_connect = copied_numbers[index_to_connect]
 
-        if mainNumber == 1:
-            print("CONNECTING")
-
-            print(numbers)
-
-            print(grid)
-
         copied_grid.connect_numbers(copied_num, copied_to_connect)
 
         complete, copied_grid = make_connections(copied_numbers, copied_grid)
@@ -191,3 +176,30 @@ def handle_when_3(grid, number, numbers):
             return True, copied_grid
 
     return False, grid
+
+# unused
+def search(number):
+    """Checks if the number is isolated (forms an island)."""
+    visited = set()
+    stack = [number]  # Start with the given number
+
+    while stack:
+        num = stack.pop()
+
+        if num in visited:
+            continue  # Skip already checked numbers
+
+        visited.add(num)
+
+        for connected in num._made_connections:
+            if not connected.is_complete():
+                return False
+
+            if connected not in visited:
+                stack.append(connected)
+
+    if len(visited) == lengthOfOrig:
+        return False
+
+    # If all connected nodes form an isolated component, return True (it's an island)
+    return True
