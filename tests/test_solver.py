@@ -1,7 +1,7 @@
 import unittest
-from bridges_solver.solver import set_possible_connections,make_connections, start, sort, get_and_populate_numbers, handle_when_1, handle_when_2
-from bridges_solver.board import Board, NumberTile
-import time
+from solver.solver import set_possible_connections,make_connections, start, sort, get_and_populate_numbers, handle_mandatory_connections, handle_reducible_connections
+from board.board import Board
+from board.tile import NumberTile
 import json
 
 def load_boards():
@@ -157,14 +157,14 @@ class TestBridgesSolver(unittest.TestCase):
 
         get_and_populate_numbers(grid.grid)
 
-        handle_when_1(grid, numbers[0])
+        handle_mandatory_connections(grid, numbers[0])
         self.assertEqual(numbers[0].get_num_possible_connections(), 0)
 
-        handle_when_1(grid, numbers[3])
+        handle_mandatory_connections(grid, numbers[3])
         self.assertEqual(numbers[3].get_num_possible_connections(), 0)
 
         self.assertEqual(numbers[4].get_num_possible_connections(), 3)
-        handle_when_2(grid, numbers[4])
+        handle_reducible_connections(grid, numbers[4])
         self.assertEqual(numbers[4].get_num_possible_connections(), 2)
 
     def test_3(self):

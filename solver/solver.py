@@ -1,6 +1,7 @@
 import copy
 
-from bridges_solver.board import Board, NumberTile, Direction
+from board.tile import NumberTile
+from board.direction import Direction
 
 process = [""]
 
@@ -80,7 +81,7 @@ def make_connections(numbers, grid):
         number = numbers[i]
         connections_before = number.num_connections_left
 
-        # for num in numbers:
+        # if the number has more required connections than possible, return failure.
         if number.get_num_possible_connections() - number.num_connections_left < 0:
             return False, grid
 
@@ -88,7 +89,7 @@ def make_connections(numbers, grid):
             if number.num_connections_left == 0:
                 number.set_complete()
             else:
-                handle_when_1(grid, number)
+                handle_mandatory_connections(grid, number)
 
             numbers.pop(i)
 
@@ -98,7 +99,7 @@ def make_connections(numbers, grid):
             continue
 
         if number.get_num_possible_connections() - number.num_connections_left == 1 and number.num_connections_left != 1:
-            handle_when_2(grid, number)
+            handle_reducible_connections(grid, number)
 
             if number.num_connections_left == 0:
                 numbers.pop(i)
@@ -111,7 +112,7 @@ def make_connections(numbers, grid):
 
             continue
 
-        complete, final_grid = handle_when_3(grid, number, numbers)
+        complete, final_grid = handle_guess_and_check(grid, number, numbers)
         if complete:
             return True, final_grid
 
@@ -122,7 +123,7 @@ def make_connections(numbers, grid):
 
     return False, grid
 
-def handle_when_1(grid, number):
+def handle_mandatory_connections(grid, number):
     pos_cons = number.get_possible_connections()
 
     for number_to_connect in list(pos_cons.keys()):
@@ -136,7 +137,7 @@ def handle_when_1(grid, number):
         grid.connect_numbers(number, number_to_connect)
         process.append(str(grid))
 
-def handle_when_2(grid, number):
+def handle_reducible_connections(grid, number):
     pos_cons = number.get_possible_connections()
     for number_to_connect in list(pos_cons.keys()):
         if len(pos_cons) == 0:
@@ -147,20 +148,15 @@ def handle_when_2(grid, number):
             process.append(str(grid))
 
 
-def handle_when_3(grid, number, numbers):
+def handle_guess_and_check(grid, number, numbers):
     pos_cons = number.get_possible_connections()
+
     for number_to_connect in list(pos_cons.keys()):
-        if len(pos_cons) == 0:
-            break
-
-        index_number = numbers.index(number)
-        index_to_connect = numbers.index(number_to_connect)
-
         copied_numbers = copy.deepcopy(numbers)
         copied_grid = copy.deepcopy(grid)
 
-        copied_num = copied_numbers[index_number]
-        copied_to_connect = copied_numbers[index_to_connect]
+        copied_num = copied_numbers[numbers.index(number)]
+        copied_to_connect = copied_numbers[numbers.index(number_to_connect)]
 
         copied_grid.connect_numbers(copied_num, copied_to_connect)
 
