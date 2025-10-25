@@ -20,4 +20,20 @@ Example:
 
 ## My approach
 
-Using test driven development
+### Extract and prepare tiles
+- Collect all number tiles on the grid.
+- Populate possible connections for each tile based on the board layout.
+
+### Deterministic solving
+- `handle_mandatory_connections`: Apply guaranteed connections.
+- `handle_reducible_connections`: Apply connections that can be logically deduced.
+
+### Recursive backtracking
+- `handle_guess_and_check`: For complex puzzles, make a guess and recursively check if it leads to a valid solution.
+- If a guess fails, backtrack and try alternative connections.
+
+### Heuristics
+- Tiles are sorted by the number of possible connections to reduce branching in the recursion.
+
+### TDD methodology
+- Tests start with simple puzzles and gradually increase in complexity, ensuring that each function is robust before moving on to more challenging boards.
